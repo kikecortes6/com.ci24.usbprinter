@@ -6,9 +6,9 @@
  <engines>
     <engine name="cordova" version=">=3.4.0"/>
   </engines>
-         <asset src="www/printer.js" target="js/printer.js"/>
-        <js-module src="www/printer.js" name="printer">
-<clobbers target="ci24printer" />
+         <asset src="www/usbprinter.js" target="js/usbprinter.js"/>
+        <js-module src="www/usbprinter.js" name="usbprinter">
+<clobbers target="ci24UsbPrinter" />
  </js-module> 
     <platform name="android">
              <config-file target="AndroidManifest.xml" parent="/*">
