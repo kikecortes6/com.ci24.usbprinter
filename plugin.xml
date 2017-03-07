@@ -1,10 +1,7 @@
-
-
 <?xml version="1.0" encoding="UTF-8"?>
 <plugin xmlns="http://www.phonegap.com/ns/plugins/1.0"
         id="com.ci24.usbprinter"
         version="1.0.0">
-
     <name>UsbPrinter</name>
  <engines>
     <engine name="cordova" version=">=3.4.0"/>
@@ -12,16 +9,15 @@
          <asset src="www/printer.js" target="js/printer.js"/>
         <js-module src="www/printer.js" name="printer">
 <clobbers target="ci24printer" />
-   
-  </js-module> 
+ </js-module> 
     <platform name="android">
              <config-file target="AndroidManifest.xml" parent="/*">
              <uses-permission android:name="android.hardware.usb.host" />
-             
-           
+                     </config-file>
+            
        
-    </receiver>
-        </config-file>
+    
+        
     
  <config-file target="res/xml/config.xml" parent="/*">
       <feature name="Printer">
