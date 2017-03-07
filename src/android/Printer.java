@@ -57,7 +57,7 @@ public class Printer extends CordovaPlugin {
   public boolean execute(String action, final JSONArray args, CallbackContext callbackContext) {
 
 
-    if (action.equals("gpsStatus")) {
+    if (action.equals("printData")) {
 
 
 
@@ -75,51 +75,7 @@ public class Printer extends CordovaPlugin {
 
 
     }
-    else if(action.equals( "openGps")) {
-
-
-
-      Toast.makeText(getActivity().getApplicationContext(), "Asking Permission", Toast.LENGTH_SHORT).show();
-      UsbDevice device;
-      UsbManager manager = (UsbManager) this.getActivity().getSystemService(Context.USB_SERVICE);
-
-      mPermissionIntent = PendingIntent.getBroadcast(this.getActivity(), 0, new Intent(
-        ACTION_USB_PERMISSION), 0);
-
-      IntentFilter filter = new IntentFilter(ACTION_USB_PERMISSION);
-      getActivity().registerReceiver(mUsbReceiver, filter);
-
-
-
-      HashMap<String , UsbDevice> deviceList = manager.getDeviceList();
-      Iterator<UsbDevice> deviceIterator = deviceList.values().iterator();
-
-      while (deviceIterator.hasNext()) {
-        device = deviceIterator.next();
-        manager.requestPermission(device, mPermissionIntent);
-        Log.d(TAG, "DeviceID: " + device.getDeviceId());
-        if(device.getDeviceId()==2002){
-          Toast.makeText(getActivity().getApplicationContext(),device.getDeviceName()+" "+device.getDeviceClass()+" "+device.getDeviceSubclass()
-            +" "+device.getVendorId()+" "+device.getProductId(), Toast.LENGTH_LONG).show();
-        }
-
-        Log.d(TAG,"DeviceName: " + device.getDeviceName());
-        Log.d(TAG,"DeviceClass: " + device.getDeviceClass());
-        Log.d(TAG, "DeviceSubClass: " + device.getDeviceSubclass());
-        Log.d(TAG,"VendorID: " + device.getVendorId() );
-        Log.d(TAG,"ProductID: " + device.getProductId());
-      }
-
-    }
-    else if(action.equals("Subscribe")){
-
-
-
-
-
-
-
-    }
+    
 
 
 
