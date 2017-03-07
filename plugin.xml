@@ -2,7 +2,7 @@
 <plugin xmlns="http://www.phonegap.com/ns/plugins/1.0"
         id="com.ci24.usbprinter"
         version="1.0.0">
-    <name>UsbPrinter</name>
+    <name>Printer</name>
  <engines>
     <engine name="cordova" version=">=3.4.0"/>
   </engines>
