@@ -3,6 +3,9 @@ package com.ci24.usbprinter;
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaPlugin;
 import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
@@ -23,35 +26,16 @@ import java.util.Iterator;
 
 
 public class Printer extends CordovaPlugin {
-  //private CallbackContext callbackContext;
-
+  private CallbackContext Callback;
   private static final String TAG = "printer";
-
-
   private static final String ACTION_USB_PERMISSION ="com.ci24.usbprinter.USB_PERMISSION";
-
-
   private static final int targetVendorID = 7072;  //1008
   private static final int targetProductID = 8706;//1322
-
   private PendingIntent mPermissionIntent;
-
-
-
-
   private UsbInterface usbInterfaceFound = null;
-
   private UsbEndpoint endpointOut = null;
   private UsbDevice deviceFound = null;
   private UsbManager mUsbManager;
-
-
-
-
-
-
-
-
   public Activity getActivity() {    return this.cordova.getActivity();  }
   @Override
   public boolean execute(String action, final JSONArray args, CallbackContext callbackContext) {
@@ -59,23 +43,39 @@ public class Printer extends CordovaPlugin {
 
     if (action.equals("printData")) {
 
-
-
+      String print=null;
+      try {
+        print = args.optJSONObject(0).getString("print");
+      } catch (JSONException e) {
+        e.printStackTrace();
+        callbackContext.error("Error: Code 1:No Print Text Send In Json Argument");
+      }
+      JSONObject opts=null;
+      try {
+         opts = args.optJSONObject(0).has("opts")? args.optJSONObject(0).getJSONObject("opts") : new JSONObject();
+      } catch (JSONException e) {
+        e.printStackTrace();
+      }
       // register the broadcast receiver
-      mUsbManager = (UsbManager) getActivity().getApplicationContext().getSystemService(Context.USB_SERVICE);
-      final String ACTION_USB_PERMISSION = "com.plugin.gpsstatus.USB_PERMISSION";
-      mPermissionIntent = PendingIntent.getBroadcast(getActivity().getApplicationContext(), 0, new Intent(
-        ACTION_USB_PERMISSION), 0);
-      IntentFilter filter = new IntentFilter(ACTION_USB_PERMISSION);
-      getActivity().getApplicationContext().registerReceiver(mUsbReceiver, filter);
+      try{
+        mUsbManager = (UsbManager) getActivity().getApplicationContext().getSystemService(Context.USB_SERVICE);
+        final String ACTION_USB_PERMISSION = "com.plugin.gpsstatus.USB_PERMISSION";
+        mPermissionIntent = PendingIntent.getBroadcast(getActivity().getApplicationContext(), 0, new Intent(
+          ACTION_USB_PERMISSION), 0);
+        IntentFilter filter = new IntentFilter(ACTION_USB_PERMISSION);
+        getActivity().getApplicationContext().registerReceiver(mUsbReceiver, filter);
+      }catch (Exception e){
+        callbackContext.error("Error: code 2: "+e.toString());
+      }
 
-      connectUsb();
+
+      connectUsb(print, opts,callbackContext);
 
 
 
 
     }
-    
+
 
 
 
@@ -122,18 +122,18 @@ public class Printer extends CordovaPlugin {
 
 
 
-  private void connectUsb() {
+  private void connectUsb(String print, JSONObject opts, CallbackContext callbackContext) {
 
     Toast.makeText(getActivity(), "connectUsb ", Toast.LENGTH_LONG)
       .show();
 
 
-    searchEndPoint();
+    searchEndPoint(callbackContext);
 
     if (usbInterfaceFound != null) {
       //
       //
-      setupUsbComm();
+      setupUsbComm( print,  opts,callbackContext);
       Toast.makeText(getActivity(), "Interface is not null", Toast.LENGTH_LONG)
         .show();
     }
@@ -141,7 +141,7 @@ public class Printer extends CordovaPlugin {
   }
 
 
-  private void searchEndPoint() {
+  private void searchEndPoint(CallbackContext callbackContext) {
 
 
     usbInterfaceFound = null;
@@ -172,6 +172,7 @@ public class Printer extends CordovaPlugin {
     if (deviceFound == null) {
       Toast.makeText(getActivity(), "device not found",
         Toast.LENGTH_LONG).show();
+      callbackContext.error("Error: Code 03: Device Not found");
 
     } else {
 
@@ -208,6 +209,7 @@ public class Printer extends CordovaPlugin {
 
         Toast.makeText(getActivity(), "No suitable interface found!", Toast.LENGTH_LONG)
           .show();
+        callbackContext.error("Error: Code 04:No suitable interface found!");
       } else {
 
         Toast.makeText(getActivity(), "UsbInterface found: "
@@ -221,7 +223,7 @@ public class Printer extends CordovaPlugin {
 
 
 
-  private boolean setupUsbComm() {
+  private boolean setupUsbComm(String print, JSONObject opts, CallbackContext callbackContext) {
 
 
 
@@ -239,16 +241,40 @@ public class Printer extends CordovaPlugin {
 
         int usbResult;
         String dataToPrint="This is a printer test $intro$ controles inteligentes Oscar Enrique Cortes ";
-        byte[] message= new byte[dataToPrint.length()+1];
-        for(int i=0;i<dataToPrint.length();i++){
-          message[i]=(byte) dataToPrint.charAt(i);
+        byte[] message= new byte[print.length()+5];
+        int ver=2;
+        int data=print.length();
+        String dat=null;
+        for(int i=0;i<data-3;i++){
+          if(ver==2) {
+
+                  dat=print.substring(i, i + 3);
+            if (dat.equals("$i$")) {
+              message[i] = (byte) 10;
+              ver=0;
+            }else if(dat.equals("$h$")){
+              message[i] = (byte) 9;
+              ver=0;
+            } else if(dat.equals("$b$")){
+              message[i] = (byte) 27;
+              message[i+1] = (byte) 14;
+              ver=0;
+            }else{
+              message[i] = (byte) print.charAt(i);
+            }
+
+          }else{
+            ver=ver+1;
+
+          }
+
         }
-        message[dataToPrint.length()]=(byte)10;
+        message[print.length()+1]=(byte)10;
         usbResult = usbDeviceConnection.bulkTransfer(endpointOut,
           message, message.length, 500);
         Toast.makeText(getActivity(), "bulkTransfer: " + usbResult,
           Toast.LENGTH_LONG).show();
-
+          callbackContext.success("Printing Success");
 
 
 
@@ -260,6 +286,7 @@ public class Printer extends CordovaPlugin {
       manager.requestPermission(deviceFound, mPermissionIntent);
       Toast.makeText(getActivity(), "Permission: " + permitToRead,
         Toast.LENGTH_LONG).show();
+      callbackContext.error("Error: code 05: Permission to read Denied");
 
     }
 
