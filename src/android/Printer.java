@@ -43,7 +43,7 @@ public class Printer extends CordovaPlugin {
   private UsbManager mUsbManager;
   public Activity getActivity() {    return this.cordova.getActivity();  }
   @Override
-  public boolean execute(String action, final JSONArray args, CallbackContext callbackContext) throws JSONException, UnsupportedEncodingException {
+  public boolean execute(String action, final JSONArray args, CallbackContext callbackContext)  {
 
 
     if (action.equals("printData1")) {
@@ -87,24 +87,36 @@ public class Printer extends CordovaPlugin {
 
 
     else  if (action.equals("printData")) {
+      try {
 
-    UsbPrinter myprinter =new UsbPrinter();//创建类实例
-      boolean ret = false;
-       byte[] SData = null;
-       ret = myprinter.Open();
-       if (ret) {
-          String printData = args.optJSONObject(0).getString("print");
-         SData = printData.getBytes("GB2312");
-     ret = myprinter.WriteBuf(SData, SData.length);
-         if (!ret) {
 
-           Toast.makeText(getActivity().getApplicationContext(),myprinter.GetLastPrintErr() , Toast.LENGTH_LONG).show();
-   }
-      myprinter.Close();//关闭打印机 
-           }
-           myprinter = null;
-      Toast.makeText(getActivity().getApplicationContext(),"termino " , Toast.LENGTH_LONG).show();
-                callbackContext.success("Printing Success");
+        UsbPrinter myprinter = new UsbPrinter();//创建类实例
+        boolean ret = false;
+        byte[] SData = null;
+        ret = myprinter.Open();
+        if (ret) {
+          try{
+            String printData = args.optJSONObject(0).getString("print");
+         
+          
+          SData = printData.getBytes("GB2312");
+          }catch (JSONException e){
+            Toast.makeText(getActivity().getApplicationContext(), e.toString(), Toast.LENGTH_LONG).show();
+
+          }
+          ret = myprinter.WriteBuf(SData, SData.length);
+          if (!ret) {
+
+            Toast.makeText(getActivity().getApplicationContext(), myprinter.GetLastPrintErr(), Toast.LENGTH_LONG).show();
+          }
+          myprinter.Close();//关闭打印机 
+        }
+        myprinter = null;
+        Toast.makeText(getActivity().getApplicationContext(), "termino ", Toast.LENGTH_LONG).show();
+        callbackContext.success("Printing Success");
+      } catch (UnsupportedEncodingException e){
+        Toast.makeText(getActivity().getApplicationContext(), e.toString(), Toast.LENGTH_LONG).show();
+      }
 
     }
 
