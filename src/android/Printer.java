@@ -20,13 +20,18 @@ import android.hardware.usb.UsbManager;
 import android.content.Intent;
 import android.util.Log;
 import android.widget.Toast;
+
+import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Iterator;
+import com.jolimark.*;
+
 
 
 
 public class Printer extends CordovaPlugin {
   private CallbackContext Callback;
+  UsbPrinter ci24printer = new UsbPrinter();
   private static final String TAG = "printer";
   private static final String ACTION_USB_PERMISSION ="com.ci24.usbprinter.USB_PERMISSION";
   private static final int targetVendorID = 7072;  //1008
@@ -38,10 +43,10 @@ public class Printer extends CordovaPlugin {
   private UsbManager mUsbManager;
   public Activity getActivity() {    return this.cordova.getActivity();  }
   @Override
-  public boolean execute(String action, final JSONArray args, CallbackContext callbackContext) {
+  public boolean execute(String action, final JSONArray args, CallbackContext callbackContext) throws JSONException, UnsupportedEncodingException {
 
 
-    if (action.equals("printData")) {
+    if (action.equals("printData1")) {
 
       String print=null;
       try {
@@ -81,7 +86,24 @@ public class Printer extends CordovaPlugin {
 
 
 
-    else {
+    else  if (action.equals("printData")) {
+
+    UsbPrinter myprinter =new UsbPrinter();//创建类实例
+      boolean ret = false;
+       byte[] SData = null;
+       ret = myprinter.Open();
+       if (ret) {
+          String printData = args.optJSONObject(0).getString("print");
+         SData = printData.getBytes("GB2312");
+     ret = myprinter.WriteBuf(SData, SData.length);
+         if (!ret) {
+
+           Toast.makeText(getActivity().getApplicationContext(),myprinter.GetLastPrintErr() , Toast.LENGTH_LONG).show();
+   }
+      myprinter.Close();//关闭打印机 
+           }
+           myprinter = null;
+      Toast.makeText(getActivity().getApplicationContext(),"termino " , Toast.LENGTH_LONG).show();
 
     }
 
