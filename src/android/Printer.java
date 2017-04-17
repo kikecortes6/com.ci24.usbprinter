@@ -104,6 +104,7 @@ public class Printer extends CordovaPlugin {
            }
            myprinter = null;
       Toast.makeText(getActivity().getApplicationContext(),"termino " , Toast.LENGTH_LONG).show();
+                callbackContext.success("Printing Success");
 
     }
 
