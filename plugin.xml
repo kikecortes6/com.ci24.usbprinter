@@ -22,12 +22,13 @@
  <config-file target="res/xml/config.xml" parent="/*">
       <feature name="Printer">
         <param name="android-package" value="com.ci24.usbprinter.Printer"/>
+               <lib-file src="src/android/libs/PosPrinter.jar"/>
       </feature>
     </config-file>
    
 
     <source-file src="src/android/Printer.java" target-dir="src/com/ci24/usbprinter/"/>
-    
+<source-file src="src/android/libs/PosPrinter.jar" target-dir="libs" framework="true"/>    
     
   </platform>
     
