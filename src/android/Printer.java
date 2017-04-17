@@ -87,7 +87,7 @@ public class Printer extends CordovaPlugin {
 
 
     else  if (action.equals("printData")) {
-      try {
+     
 
 
         UsbPrinter myprinter = new UsbPrinter();//创建类实例
@@ -97,9 +97,14 @@ public class Printer extends CordovaPlugin {
         if (ret) {
           try{
             String printData = args.optJSONObject(0).getString("print");
+
+           try{
+             SData = printData.getBytes("GB2312");    
+           }catch (UnsupportedEncodingException e){
+            Toast.makeText(getActivity().getApplicationContext(), e.toString(), Toast.LENGTH_LONG).show();
+
+          }
          
-          
-          SData = printData.getBytes("GB2312");
           }catch (JSONException e){
             Toast.makeText(getActivity().getApplicationContext(), e.toString(), Toast.LENGTH_LONG).show();
 
@@ -113,10 +118,9 @@ public class Printer extends CordovaPlugin {
         }
         myprinter = null;
         Toast.makeText(getActivity().getApplicationContext(), "termino ", Toast.LENGTH_LONG).show();
-        callbackContext.success("Printing Success");
-      } catch (UnsupportedEncodingException e){
-        Toast.makeText(getActivity().getApplicationContext(), e.toString(), Toast.LENGTH_LONG).show();
-      }
+
+     
+      callbackContext.success("Printing Success");
 
     }
 
