@@ -23,12 +23,14 @@
       <feature name="Printer">
         <param name="android-package" value="com.ci24.usbprinter.Printer"/>
                <lib-file src="src/android/libs/PosPrinter.jar"/>
+              <lib-file src="src/android/libs/android-support-v4.jar"/>
       </feature>
     </config-file>
    
 
     <source-file src="src/android/Printer.java" target-dir="src/com/ci24/usbprinter/"/>
-<source-file src="src/android/libs/PosPrinter.jar" target-dir="libs" framework="true"/>    
+<source-file src="src/android/libs/PosPrinter.jar" target-dir="libs" framework="true"/>   
+            <source-file src="src/android/libs/android-support-v4.jar" target-dir="libs" framework="true"/> 
     
   </platform>
     
